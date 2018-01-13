@@ -30,10 +30,13 @@ public class ContactHelper extends HelperBase {
     type(By.name("address"), contactData.getAddress());
     type(By.name("home"), contactData.getHomePhone());
     type(By.name("email"), contactData.getEmail());
+    attach(By.name("photo"), contactData.getPhoto());
 
 
     if (creation) {
-      new Select(wd.findElement(By.name("new_group"))).selectByVisibleText(contactData.getGroup());
+      if (contactData.getGroup() != null) {
+        new Select(wd.findElement(By.name("new_group"))).selectByVisibleText(contactData.getGroup());
+      }
     } else {
       Assert.assertFalse(isElementPresent(By.name("new_group")));
     }
@@ -57,7 +60,7 @@ public class ContactHelper extends HelperBase {
 
 
   public void initContactModification(int id) {
-    wd.findElement(By.cssSelector(String.format("a[href='edit.php?id=%s']",id))).click();
+    wd.findElement(By.cssSelector(String.format("a[href='edit.php?id=%s']", id))).click();
   }
 
   public void submitContactModification() {
@@ -132,8 +135,8 @@ public class ContactHelper extends HelperBase {
     String email2 = wd.findElement(By.name("email2")).getAttribute("value");
     String email3 = wd.findElement(By.name("email3")).getAttribute("value");
     wd.navigate().back();
-  return new ContactData().withId(contact.getId()).withFirstName(firstName).withLastName(lastName)
-          .withAddress(address).withHomePhone(home).withMobilePhone(mobile).withWorkPhone(work)
-          .withEmail(email).withEmail2(email2).withEmail3(email3);
+    return new ContactData().withId(contact.getId()).withFirstName(firstName).withLastName(lastName)
+            .withAddress(address).withHomePhone(home).withMobilePhone(mobile).withWorkPhone(work)
+            .withEmail(email).withEmail2(email2).withEmail3(email3);
   }
 }
