@@ -1,24 +1,39 @@
 package ru.stga.pft.addressbook.tests;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import ru.stga.pft.addressbook.model.ContactData;
 import ru.stga.pft.addressbook.model.Contacts;
 
-import java.io.File;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ContactCreationTest extends TestBase {
 
-  @Test
-  public void testContactCreation() {
+  @DataProvider
+  public Iterator<Object[]> validContacts() throws IOException {
+    List<Object[]> list = new ArrayList<Object[]>();
+    File photo = new File("src/test/resources/photo.jpeg");
+    BufferedReader reader = new BufferedReader(new FileReader(new File("src/test/resources/contacts.csv")));
+    String line = reader.readLine();
+    while (line != null) {
+      String[] split = line.split(";");
+      list.add(new Object[] {new ContactData().withFirstName(split[0]).withLastName(split[1])
+              .withAddress(split[2]).withEmail(split[3]).withHomePhone(split[4]).withPhoto(photo)});
+      line = reader.readLine();
+    }
+    return list.iterator();
+  }
+
+  @Test(dataProvider = "validContacts")
+  public void testContactCreation(ContactData contact) {
     app.goTo().homePage();
     Contacts before = app.contact().all();
-    File photo = new File("src/test/resources/photo.jpeg");
-    ContactData contact = new ContactData()
-            .withFirstName("test4").withLastName("test2").withAddress("test3").withHomePhone("123456")
-            .withEmail("test@test.com").withPhoto(photo);
     app.contact().create(contact);
     assertThat(app.contact().count(), equalTo(before.size() + 1));
     Contacts after = app.contact().all();
