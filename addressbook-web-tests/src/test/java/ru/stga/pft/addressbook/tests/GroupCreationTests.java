@@ -3,6 +3,8 @@ package ru.stga.pft.addressbook.tests;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.xstream.XStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import ru.stga.pft.addressbook.model.GroupData;
@@ -32,7 +34,7 @@ public class GroupCreationTests extends TestBase {
       XStream xstream = new XStream();
       xstream.processAnnotations(GroupData.class);
       List<GroupData> groups = (List<GroupData>) xstream.fromXML(xml);
-      return groups.stream().map((g) -> new Object[] {g}).collect(Collectors.toList()).iterator();
+      return groups.stream().map((g) -> new Object[]{g}).collect(Collectors.toList()).iterator();
     }
   }
 
@@ -46,17 +48,19 @@ public class GroupCreationTests extends TestBase {
         line = reader.readLine();
       }
       Gson gson = new Gson();
-      List<GroupData> groups = gson.fromJson(json, new TypeToken<List<GroupData>>() {}.getType());
-      return groups.stream().map((g) -> new Object[] {g}).collect(Collectors.toList()).iterator();
+      List<GroupData> groups = gson.fromJson(json, new TypeToken<List<GroupData>>() {
+      }.getType());
+      return groups.stream().map((g) -> new Object[]{g}).collect(Collectors.toList()).iterator();
     }
   }
 
   @Test(dataProvider = "validGroupsFromJson")
   public void testGroupCreation(GroupData group) {
-    app.goTo().groupPage();List<GroupData> groups;
+    app.goTo().groupPage();
+    List<GroupData> groups;
     Groups before = app.group().all();
     app.group().create(group);
-    assertThat(app.group().count(), equalTo(before.size()+1));
+    assertThat(app.group().count(), equalTo(before.size() + 1));
     Groups after = app.group().all();
     assertThat(after, equalTo(
             before.withAdded(group.withId(after.stream().mapToInt((g) -> g.getId()).max().getAsInt()))));
