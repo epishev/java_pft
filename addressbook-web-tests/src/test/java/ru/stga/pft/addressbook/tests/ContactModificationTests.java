@@ -5,30 +5,32 @@ import org.testng.annotations.Test;
 import ru.stga.pft.addressbook.model.ContactData;
 import ru.stga.pft.addressbook.model.Contacts;
 
+import java.io.File;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.testng.Assert.assertEquals;
 
 public class ContactModificationTests extends TestBase {
 
   @BeforeMethod
   public void ensurePreconditions() {
-    app.goTo().homePage();
-    if (app.contact().all().size() == 0) {
-      app.contact().create(new ContactData().withFirstName("test4").withLastName("test2").withAddress("test3").withHomePhone("123456")
-                                            .withEmail("test@test.com").withGroup("test1"));
+    if (app.db().contacts().size() == 0) {
+      app.goTo().homePage();
+      app.contact().create(new ContactData().withFirstName("test4").withLastName("test2").withMiddleName("MiddleName321").withAddress("test3")
+              .withHomePhone("123456").withEmail("test@test.com").withGroup("test1"));
     }
   }
 
   @Test
   public void testContactModification() {
-    Contacts before = app.contact().all();
+    Contacts before = app.db().contacts();
     ContactData modifiedContact = before.iterator().next();
-    ContactData contact = new ContactData().withId(modifiedContact.getId()).withFirstName("test8").withLastName("test2").withAddress("test3")
-            .withHomePhone("123456").withEmail("test@test.com");
+    File photo = new File("src/test/resources/photo.jpeg");
+    ContactData contact = new ContactData().withId(modifiedContact.getId()).withFirstName("test8").withLastName("test2").withMiddleName("MiddleName321")
+            .withAddress("test3").withHomePhone("123456").withEmail("test@test.com").withPhoto(photo);
     app.contact().modify(contact);
     assertThat(app.contact().count(), equalTo(before.size()));
-    Contacts after = app.contact().all();
+    Contacts after = app.db().contacts();
     assertThat(after, equalTo(before.without(modifiedContact).withAdded(contact)));
 
 

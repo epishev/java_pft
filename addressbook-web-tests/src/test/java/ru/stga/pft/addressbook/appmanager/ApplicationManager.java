@@ -8,7 +8,6 @@ import org.openqa.selenium.remote.BrowserType;
 import org.openqa.selenium.safari.SafariDriver;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Objects;
@@ -25,6 +24,7 @@ public class ApplicationManager {
   private GroupHelper groupHelper;
   private ContactHelper contactHelper;
   private String browser;
+  private DbHelper dbHelper;
 
   public ApplicationManager(String browser) {
     this.browser = browser;
@@ -36,6 +36,9 @@ public class ApplicationManager {
   public void init() throws IOException {
     String target = System.getProperty("target", "local");
     properties.load(new FileReader(new File(String.format("src/test/resources/%s.properties", target))));
+
+    dbHelper = new DbHelper();
+
     if (Objects.equals(browser, BrowserType.FIREFOX)) {
       wd = new FirefoxDriver(new FirefoxOptions().setLegacy(true));
     } else if (Objects.equals(browser, BrowserType.CHROME)) {
@@ -49,7 +52,8 @@ public class ApplicationManager {
     contactHelper = new ContactHelper(wd);
     navigationHelper = new NavigationHelper(wd);
     sessionHelper = new SessionHelper(wd);
-    sessionHelper.login(properties.getProperty("web.adminLogin"),properties.getProperty("web.adminPassword"));
+    sessionHelper.login(properties.getProperty("web.adminLogin"), properties.getProperty("web.adminPassword"));
+
   }
 
 
@@ -68,5 +72,9 @@ public class ApplicationManager {
   public NavigationHelper goTo() {
     return navigationHelper;
 
+  }
+
+  public DbHelper db() {
+    return dbHelper;
   }
 }

@@ -40,7 +40,7 @@ public class GroupDataGenerator {
 
   private void run() throws IOException {
     List<GroupData> groups = generateGroups(count);
-    if(format.equals("csv")){
+    if (format.equals("csv")) {
       saveAsCsv(groups, new File(file));
     } else if (format.equals("xml")) {
       saveAsXml(groups, new File(file));
@@ -70,7 +70,7 @@ public class GroupDataGenerator {
   }
 
   private void saveAsCsv(List<GroupData> groups, File file) throws IOException {
-    try(Writer writer = new FileWriter(file)) {
+    try (Writer writer = new FileWriter(file)) {
       for (GroupData group : groups) {
         writer.write(String.format("%s;%s;%s\n", group.getName(), group.getHeader(), group.getFooter()));
       }

@@ -57,6 +57,7 @@ public class GroupHelper extends HelperBase {
     groupCache = null;
     returnToGroupPage();
   }
+
   public void modify(GroupData group) {
     selectGroupById(group.getId());
     initGroupModification();

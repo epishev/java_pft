@@ -8,8 +8,10 @@ import org.testng.annotations.Test;
 import ru.stga.pft.addressbook.model.ContactData;
 import ru.stga.pft.addressbook.model.Contacts;
 
-import java.io.*;
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,8 +23,7 @@ public class ContactCreationTest extends TestBase {
 
   @DataProvider
   public Iterator<Object[]> validContactsFromXml() throws IOException {
-    File photo = new File("src/test/resources/photo.jpeg");
-    try(BufferedReader reader = new BufferedReader(new FileReader(new File("src/test/resources/contacts.xml")))) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(new File("src/test/resources/contacts.xml")))) {
       String xml = "";
       String line = reader.readLine();
       while (line != null) {
@@ -31,15 +32,14 @@ public class ContactCreationTest extends TestBase {
       }
       XStream xstream = new XStream();
       xstream.processAnnotations(ContactData.class);
-      List<ContactData> groups = (List<ContactData>) xstream.fromXML(xml);
-      return groups.stream().map((g) -> new Object[] {g}).collect(Collectors.toList()).iterator();
+      List<ContactData> contacts = (List<ContactData>) xstream.fromXML(xml);
+      return contacts.stream().map((g) -> new Object[]{g}).collect(Collectors.toList()).iterator();
     }
   }
 
   @DataProvider
   public Iterator<Object[]> validContactsFromJson() throws IOException {
-    File photo = new File("src/test/resources/photo.jpeg");
-    try(BufferedReader reader = new BufferedReader(new FileReader(new File("src/test/resources/contacts.json")))){
+    try (BufferedReader reader = new BufferedReader(new FileReader(new File("src/test/resources/contacts.json")))) {
       String json = "";
       String line = reader.readLine();
       while (line != null) {
@@ -47,18 +47,20 @@ public class ContactCreationTest extends TestBase {
         line = reader.readLine();
       }
       Gson gson = new Gson();
-      List<ContactData> groups = gson.fromJson(json, new TypeToken<List<ContactData>>() {}.getType());
-      return groups.stream().map((g) -> new Object[] {g}).collect(Collectors.toList()).iterator();
+      List<ContactData> contacts = gson.fromJson(json, new TypeToken<List<ContactData>>() {
+      }.getType());
+      return contacts.stream().map((g) -> new Object[]{g}).collect(Collectors.toList()).iterator();
     }
   }
 
   @Test(dataProvider = "validContactsFromJson")
   public void testContactCreation(ContactData contact) {
     app.goTo().homePage();
-    Contacts before = app.contact().all();
-    app.contact().create(contact);
+    Contacts before = app.db().contacts();
+    File photo = new File("src/test/resources/photo.jpeg");
+    app.contact().create(contact.withPhoto(photo));
     assertThat(app.contact().count(), equalTo(before.size() + 1));
-    Contacts after = app.contact().all();
+    Contacts after = app.db().contacts();
     assertThat(after, equalTo(
             before.withAdded(contact.withId(after.stream().mapToInt((c) -> c.getId()).max().getAsInt()))));
   }
