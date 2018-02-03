@@ -1,15 +1,19 @@
 package ru.stga.pft.addressbook.appmanager;
 
+import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.BrowserType;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -39,22 +43,29 @@ public class ApplicationManager {
 
     dbHelper = new DbHelper();
 
-    if (Objects.equals(browser, BrowserType.FIREFOX)) {
-      wd = new FirefoxDriver(new FirefoxOptions().setLegacy(true));
-    } else if (Objects.equals(browser, BrowserType.CHROME)) {
-      wd = new ChromeDriver();
-    } else if (Objects.equals(browser, BrowserType.SAFARI)) {
-      wd = new SafariDriver();
-    }
-    wd.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
-    wd.get(properties.getProperty("web.baseUrl"));
-    groupHelper = new GroupHelper(wd);
-    contactHelper = new ContactHelper(wd);
-    navigationHelper = new NavigationHelper(wd);
-    sessionHelper = new SessionHelper(wd);
-    sessionHelper.login(properties.getProperty("web.adminLogin"), properties.getProperty("web.adminPassword"));
+    if ("".equals(properties.getProperty("selenium.server"))) {
 
-  }
+      if (Objects.equals(browser, BrowserType.FIREFOX)) {
+        wd = new FirefoxDriver(new FirefoxOptions().setLegacy(true));
+      } else if (Objects.equals(browser, BrowserType.CHROME)) {
+        wd = new ChromeDriver();
+      } else if (Objects.equals(browser, BrowserType.SAFARI)) {
+        wd = new SafariDriver();
+      }
+    } else {
+      DesiredCapabilities capabilities = new DesiredCapabilities();
+      capabilities.setBrowserName(browser);
+      wd = new RemoteWebDriver(new URL(properties.getProperty("selenium.server")),capabilities);
+    }
+      wd.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+      wd.get(properties.getProperty("web.baseUrl"));
+      groupHelper = new GroupHelper(wd);
+      contactHelper = new ContactHelper(wd);
+      navigationHelper = new NavigationHelper(wd);
+      sessionHelper = new SessionHelper(wd);
+      sessionHelper.login(properties.getProperty("web.adminLogin"), properties.getProperty("web.adminPassword"));
+
+    }
 
 
   public void stop() {
