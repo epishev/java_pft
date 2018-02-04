@@ -11,7 +11,6 @@ import ru.stga.pft.addressbook.model.Groups;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static sun.jvm.hotspot.oops.CellTypeState.addr;
 
 public class ContactAddToGroupTest extends TestBase{
 
@@ -41,12 +40,11 @@ public class ContactAddToGroupTest extends TestBase{
       assertThat(selectedContact.getGroups().without(selectedGroup), CoreMatchers.equalTo(app.db().contacts().stream().
               filter((a)->a.getId() == selectedContact.getId()).collect(Collectors.toList()).get(0).getGroups()));
       app.goTo().homePage();
-//      }
     }
     app.contact().selectDisplayGroup("[all]");
-    app.contact().addAddrToGroup(addr, group);
-    assertThat(addr.getGroups().withAdded(group), CoreMatchers.equalTo(app.db().addrs().stream().
-            filter((a)->a.getId() == addr.getId()).collect(Collectors.toList()).get(0).getGroups()));
+    app.contact().addContactToGroup(selectedContact, selectedGroup);
+    assertThat(selectedContact.getGroups().withAdded(selectedGroup), CoreMatchers.equalTo(app.db().contacts().stream().
+            filter((a)->a.getId() == selectedContact.getId()).collect(Collectors.toList()).get(0).getGroups()));
   }
 
 
