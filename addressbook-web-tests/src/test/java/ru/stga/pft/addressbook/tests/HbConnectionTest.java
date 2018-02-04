@@ -1,6 +1,5 @@
 package ru.stga.pft.addressbook.tests;
 
-import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
